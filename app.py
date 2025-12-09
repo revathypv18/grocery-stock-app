@@ -27,13 +27,20 @@ shelf_life_days = st.number_input("Shelf Life Days", min_value=0, value=30)
 rating = st.number_input("Rating", min_value=0, value=4)
 
 # -----------------------------
-# Categorical Inputs
+# Categorical Inputs (using encoder classes)
 # -----------------------------
-item = st.number_input("Item (0–11)", min_value=0, max_value=11, value=0)
-brand = st.number_input("Brand (0–4)", min_value=0, max_value=4, value=0)
-store_type = st.number_input("Store Type (0–3)", min_value=0, max_value=3, value=0)
-season = st.number_input("Season (0–3)", min_value=0, max_value=3, value=0)
-purchase_method = st.number_input("Purchase Method (0–2)", min_value=0, max_value=2, value=0)
+item_label = st.selectbox("Item", label_encoders["item"].classes_)
+brand_label = st.selectbox("Brand", label_encoders["brand"].classes_)
+store_type_label = st.selectbox("Store Type", label_encoders["store_type"].classes_)
+season_label = st.selectbox("Season", label_encoders["season"].classes_)
+purchase_method_label = st.selectbox("Purchase Method", label_encoders["purchase_method"].classes_)
+
+# Encode categorical values exactly as training
+item = label_encoders["item"].transform([item_label])[0]
+brand = label_encoders["brand"].transform([brand_label])[0]
+store_type = label_encoders["store_type"].transform([store_type_label])[0]
+season = label_encoders["season"].transform([season_label])[0]
+purchase_method = label_encoders["purchase_method"].transform([purchase_method_label])[0]
 
 # -----------------------------
 # Build Input DataFrame
@@ -55,18 +62,14 @@ input_df = pd.DataFrame({
     "rating": [rating]
 })
 
-# Ensure correct order
+# Ensure correct feature order
 input_df = input_df[feature_order]
 
 # -----------------------------
 # Predict Button
 # -----------------------------
 if st.button("Predict Stock Status"):
-    encoded_pred = model.predict(input_df)
-    final_pred = target_encoder.inverse_transform(encoded_pred)
+    pred = model.predict(input_df)
+    final_pred = target_encoder.inverse_transform(pred)
 
     st.success(f"📦 Predicted Stock Status: {final_pred[0]}")
-
-
-    
-
